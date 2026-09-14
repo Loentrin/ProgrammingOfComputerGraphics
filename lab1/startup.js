@@ -1,6 +1,4 @@
-if(document.getElementById("lightD65").checked) setLabSetting("d65")
-if(document.getElementById("lightD50").checked) setLabSetting("d50")
-if(document.getElementById("lightE").checked) setLabSetting("e")
+document.getElementById("lightD65").click()
 
 values = [80,0,0,30,0,0,0,0,0,0]
 
