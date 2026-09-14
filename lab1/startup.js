@@ -1,4 +1,4 @@
-document.getElementById("lightD65").click()
+setLabSetting("d65")
 
 values = [80,0,0,30,0,0,0,0,0,0]
 
