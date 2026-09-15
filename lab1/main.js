@@ -201,6 +201,17 @@ function boxEvent(id){
 	}
 }
 
+palette.onclick = function(e){
+	var px = e.x-palette.getBoundingClientRect().left
+	var py = e.y-palette.getBoundingClientRect().top
+	var vals1 = rgbToCmyk(...paletteCols[Math.floor(px/20)*10+Math.floor(py/20)])
+	values[0] = vals1[0]
+	values[1] = vals1[1]
+	values[2] = vals1[2]
+	values[3] = vals1[3]
+	updateValues(0)
+}
+
 function setLabSetting(val){
 	labReferences = getLabValues(val)
 	updateValues(0)
