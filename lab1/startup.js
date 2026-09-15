@@ -1,5 +1,9 @@
 setLabSetting("d65")
 
+document.addEventListener("DOMContentLoaded", (event) => {
+  document.getElementById("lightD65").checked = true
+});
+
 values = [80,0,0,30,0,0,0,0,0,0]
 
 newVals1 = cmykToRgb(values[0], values[1], values[2], values[3])
