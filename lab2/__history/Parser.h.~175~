@@ -1,0 +1,442 @@
+﻿#include <iostream>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <filesystem>
+using namespace std;
+
+class Parser{
+	ifstream fin;
+
+	char pngHeader[8] = {-119, 80, 78, 71, 13, 10, 26, 10};
+	char bmpHeader[2] = {66, 77};
+	char iend[4] = {68, 174, 66, 96};
+	char pcxHeader = 10;
+	char gifHeader[3] = {71, 73, 70};
+	char gifEnd = 59;
+	char jpgHeader1[4] = {-1, -40, -1, -32};
+	char jpgIdentifier[5] = {74, 70, 73, 70, 0};
+	char jpgEnd[2] = {-1, -39};
+	char tiffHeader1[4] = {73, 73, 42, 0};
+	char tiffHeader2[4] = {77, 77, 0, 42};
+	bool flag;
+
+	public:
+	char imageData[256];
+	vector<string> results;
+	int location, fileLength;
+	int width, height, colDepth, compression, fileSize, resH, resV;
+	string format;
+    private:
+
+	void readBytes(int n){
+		char c;
+		for(int i = 0; i < n; i++){
+            fin.get(c);
+			imageData[i] = c;
+		}
+		location += n;
+    }
+
+	void skipBytes(int n){
+		location += n;
+		fin.seekg(location);
+	}
+
+	void jumpTo(int n){
+		location = n;
+		fin.seekg(location);
+	}
+
+	void readToInt(int bytes, int& n, bool backwards=false){
+		readBytes(bytes);
+		n = 0;
+		if(backwards){
+			for(int i = bytes-1; i >= 0; i--){
+				int byte = imageData[i];
+				if(byte < 0) byte += 256;
+				n = (n << 8) + byte;
+			}
+		}
+		else{
+			for(int i = 0; i < bytes; i++){
+				int byte = imageData[i];
+				if(byte < 0) byte += 256;
+				n = (n << 8) + byte;
+			}
+        }
+
+    }
+
+    void printData(int n){
+        for(int i = 0; i < n; i++) cout << (int)imageData[i] << " ";
+        cout << endl;
+    }
+
+    public:
+
+    void openFile(string path){
+		fin.open(path, ifstream::binary);
+		location = 0;
+		results.resize(7);
+		for(int i = 0; i < 8; i++) results[i] = "-";
+		results[6] = "OK";
+
+		fin.seekg (0, fin.end);
+		fileLength = fin.tellg();
+		fin.seekg (0, fin.beg);
+
+		readBytes(8);
+
+        flag = true;
+		for(int i = 0; i < 8; i++){
+			if(imageData[i] != pngHeader[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "PNG";
+			results[0] = format;
+			parsePng();
+			fin.close();
+			return;
+		}
+
+		jumpTo(0);
+		readBytes(2);
+		flag = true;
+
+		for(int i = 0; i < 2; i++){
+			if(imageData[i] != bmpHeader[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "BMP";
+			results[0] = format;
+			parseBmp();
+			fin.close();
+			return;
+		}
+
+		jumpTo(0);
+		readBytes(1);
+		flag = true;
+
+		if(imageData[0] != pcxHeader){
+			flag = false;
+		}
+
+		if(flag){
+			format = "PCX";
+			results[0] = format;
+			parsePcx();
+			fin.close();
+			return;
+		}
+
+		jumpTo(0);
+		readBytes(3);
+		flag = true;
+
+		for(int i = 0; i < 3; i++){
+			if(imageData[i] != gifHeader[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "GIF";
+			results[0] = format;
+			parseGif();
+			fin.close();
+			return;
+		}
+
+		jumpTo(0);
+		readBytes(4);
+		flag = true;
+
+		for(int i = 0; i < 4; i++){
+			if(imageData[i] != jpgHeader1[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "JPG";
+			results[0] = format;
+			parseJpg();
+			fin.close();
+			return;
+		}
+
+		jumpTo(0);
+		readBytes(4);
+		flag = true;
+
+		for(int i = 0; i < 4; i++){
+			if(imageData[i] != tiffHeader1[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "TIFF";
+			results[0] = format;
+			parseTiff1();
+			fin.close();
+			return;
+		}
+
+        jumpTo(0);
+		readBytes(4);
+		flag = true;
+
+		for(int i = 0; i < 4; i++){
+			if(imageData[i] != tiffHeader2[i]){
+				flag = false;
+				break;
+			}
+		}
+
+		if(flag){
+			format = "TIFF";
+			results[0] = format;
+			parseTiff2();
+			fin.close();
+			return;
+		}
+
+		results[6] = "unknown type";
+
+        fin.close();
+    }
+
+	void parsePng(){
+		if(fileLength < 29){
+			results[6] = "missing critical data";
+			return;
+		}
+		jumpTo(fileLength-5);
+		readBytes(4);
+		if(imageData[0] != iend[0] || imageData[1] != iend[1] || imageData[2] != iend[2] || imageData[3] != iend[3]){
+			results[6] = "missing IEND chunk";
+			return;
+		}
+		jumpTo(8);
+
+		int chunkSize;
+        readToInt(4, chunkSize);
+        skipBytes(4);
+		readToInt(4, width);
+		readToInt(4, height);
+		readToInt(1, colDepth);
+
+		results[1] = to_string(width);
+		results[2] = to_string(height);
+		results[4] = to_string(colDepth);
+		results[5] = "deflate LZ77";
+
+
+
+	}
+
+	void parseBmp(){
+		readToInt(4, fileSize, true);
+		if(fileLength < 54){
+			results[6] = "missing critical data";
+			return;
+		}
+		if(fileLength != fileSize){
+			results[6] = "incorrect file size specified";
+			return;
+		}
+		skipBytes(12);
+		readToInt(4, width, true);
+		readToInt(4, height, true);
+		skipBytes(2);
+		readToInt(2, colDepth, true);
+		readToInt(4, compression, true);
+		skipBytes(4);
+		readToInt(4, resH, true);
+		readToInt(4, resV, true);
+
+		results[1] = to_string(width);
+		results[2] = to_string(height);
+		if(!(resH == 0 && resV == 0)) results[3] = to_string(resH*100/3937.0) + "x" + to_string(resV*100/3937.0);
+		results[4] = to_string(colDepth);
+		results[5] = "BI_RGB";
+		if(compression == 1) results[5] = "BI_RLE8";
+		if(compression == 2) results[5] = "BI_RLE4";
+	}
+
+	void parsePcx(){
+    	if(fileLength < 128){
+			results[6] = "missing critical data";
+			return;
+		}
+
+		skipBytes(2);
+        readToInt(1, colDepth);
+		int xs, ys;
+		readToInt(2, xs);
+		readToInt(2, ys);
+		readToInt(2, width);
+		readToInt(2, height);
+		readToInt(2, resH);
+		readToInt(2, resV);
+
+		width -= xs;
+		height -= ys;
+
+		results[1] = to_string(width);
+		results[2] = to_string(height);
+		results[3] = to_string(resH) + "x" + to_string(resV);
+		results[4] = to_string(colDepth);
+		results[5] = "RLE";
+	}
+
+	void parseGif(){
+		if(fileLength < 13){
+			results[6] = "missing critical data";
+			return;
+		}
+		jumpTo(fileLength-1);
+		readBytes(1);
+		if(imageData[0] != gifEnd){
+			results[6] = "missing ending trailer";
+			return;
+		}
+		jumpTo(3);
+		skipBytes(3);
+		readToInt(2, width, true);
+		readToInt(2, height, true);
+		readToInt(1, colDepth, true);
+		colDepth = ((colDepth >> 1) & 7)+1;
+
+
+		results[1] = to_string(width);
+		results[2] = to_string(height);
+		results[4] = to_string(colDepth);
+		results[5] = "LZW";
+
+	}
+
+	void parseJpg(){
+		if(fileLength < 20){
+			results[6] = "missing critical data";
+			return;
+		}
+		jumpTo(fileLength-2);
+		readBytes(2);
+		if(imageData[0] != jpgEnd[0] || imageData[1] != jpgEnd[1]){
+			results[6] = "missing EOI bytes";
+			return;
+		}
+		jumpTo(4);
+		skipBytes(2);
+		readBytes(5);
+		for(int i = 0; i < 5; i++){
+			if(imageData[i] != jpgIdentifier[i]){
+				results[6] = "missing JFIF identifier";
+				break;
+			}
+		}
+		skipBytes(2);
+		int units;
+		readToInt(1, units);
+		readToInt(2, resH);
+		readToInt(2, resV);
+		readToInt(1, width);
+		readToInt(1, height);
+
+		char c1, c2;
+		int len;
+		fin.get(c1);
+		fin.get(c2);
+		while(!((int)c1 == -1 && ((int)c2 == -64 || (int)c2 == -62)) && !fin.eof()){
+			readToInt(2, len);
+			skipBytes(len);
+			fin.get(c1);
+			fin.get(c2);
+		}
+
+		if(c2 == -64 || c2 == -62){
+			readToInt(2, len);
+            readToInt(1, colDepth);
+			readToInt(2, height);
+			readToInt(2, width);
+		}
+
+
+		results[1] = to_string(width);
+		results[2] = to_string(height);
+		if(units == 1)
+			results[3] = to_string(resH) + "x" + to_string(resV);
+		if(units == 2)
+			results[3] = to_string(resH/2.54) + "x" + to_string(resV/2.54);
+		results[4] = to_string(colDepth);
+		results[5] = "JFIF";
+	}
+
+	void parseTiff1(){
+		int off, dirs, tag, tagdatatype, tagdatasize, datacnt;
+		readToInt(4, off, true);
+		skipBytes(off);
+		off = -1;
+        tag = 0;
+		//while(off != 0){
+			readToInt(2, dirs, true);
+			for(int i = 0; i < dirs; i++){
+				skipBytes(12);
+				/*readToInt(2, tag, true);
+				readToInt(2, tagdatatype, true);
+				if(tagdatatype == 1) tagdatasize = 1;
+				if(tagdatatype == 2) tagdatasize = 1;
+				if(tagdatatype == 3) tagdatasize = 2;
+				if(tagdatatype == 4) tagdatasize = 4;
+				if(tagdatatype == 5) tagdatasize = 8;
+				readToInt(4, datacnt, true);
+				readToInt(4, off, true);
+				//skipBytes(tagdatasize*datacnt);
+				skipBytes(off); */
+			}
+			results[1] = to_string(dirs);
+			readToInt(4, off, true);
+			results[2] = to_string(off);
+			skipBytes(off);
+
+            readToInt(2, dirs, true);
+			//for(int i = 0; i < dirs; i++){
+				skipBytes(12*dirs);
+				/*readToInt(2, tag, true);
+				readToInt(2, tagdatatype, true);
+				if(tagdatatype == 1) tagdatasize = 1;
+				if(tagdatatype == 2) tagdatasize = 1;
+				if(tagdatatype == 3) tagdatasize = 2;
+				if(tagdatatype == 4) tagdatasize = 4;
+				if(tagdatatype == 5) tagdatasize = 8;
+				readToInt(4, datacnt, true);
+				readToInt(4, off, true);
+				//skipBytes(tagdatasize*datacnt);
+				skipBytes(off); */
+			//}
+			results[1] = to_string(dirs);
+			readToInt(4, off, true);
+			results[2] = to_string(off);
+			skipBytes(off);
+		//}
+	}
+
+void parseTiff2(){
+
+}
+};

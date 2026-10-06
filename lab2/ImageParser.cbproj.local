@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2024/12/24 13:00:24.000.748,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2024/12/24 13:00:24.000.329,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2024/12/30 16:07:28.000.944,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2024/12/30 16:07:29.000.556,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2026/10/04 21:24:51.000.327,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>2026/10/04 21:24:52.000.416,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>2026/10/04 21:25:25.000.641,C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Project1PCH1.h=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\ImageParserPCH1.h</Transaction>
+    <Transaction>2026/10/04 21:25:25.000.661,C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Project1.cbproj=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\ImageParser.cbproj</Transaction>
+    <Transaction>2026/10/04 21:25:31.000.317,C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\ImageParser.cbproj=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\ImageParser.cbproj</Transaction>
+    <Transaction>2026/10/04 22:24:28.000.378,=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\File1.h</Transaction>
+    <Transaction>2026/10/04 22:24:41.000.083,C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\Parser.h=C:\Users\Ivan\Documents\Embarcadero\Studio\Projects\File1.h</Transaction>
+  </Transactions>
+</BorlandProject>
