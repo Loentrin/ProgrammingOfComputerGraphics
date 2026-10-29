@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<h1>Лабораторная работа 3. Основы обработки цифровых изображений</h1>
+<p>Нелинейные фильтры, основанные на порядковых статистиках; построение и эквализация гистограммы; линейное контрастирование</p>
+<p>Выбор изображения для обработки:</p>
+<div id="mainmain">
+
+<div id="divFileInput">
+    <input type="file" id="imginput" webkitRelativePath="images/" accept="image">
+</div>
+<div id="main">
+  <div id="divImg1">
+      <canvas id="visibleImg1"></canvas>
+  </div>
+    
+  <div id="settingsBlock">
+    <div id="filterSelect">
+      <fieldset>
+        <legend>Выбор фильтра</legend>
+          <div>
+            <input type="radio" tabindex="-1" id="fil1" name="filters" oninput=""/>
+            <label for="fil1">Медианный</label>
+          </div>
+          <div>
+            <input type="radio" tabindex="-1" id="fil2" name="filters" oninput=""/>
+            <label for="fil2">Минимума</label>
+          </div>
+          <div>
+            <input type="radio" tabindex="-1" id="fil3" name="filters" oninput=""/>
+            <label for="fil3">Максимума</label>
+          </div>
+          <div>
+            <input type="radio" tabindex="-1" id="fil4" name="filters" oninput=""/>
+            <label for="fil4">Срединной точки</label>
+          </div>
+          <div class="settingspace">
+            <input type="number" min="1" max="999" step="1" value="3" class="numbox" id="radvalue">
+            <label>Радиус</label>
+          </div>
+          <div class="settingspace">
+            <button onclick="setupFilters()">Применить</button>
+          </div>
+      </fieldset>
+    </div>
+
+  </div>
+
+    <div id="divImg2">
+      <canvas id="visibleImg2"></canvas>
+    </div>
+</div>
+<div id="histSelect">
+  <div>
+      <fieldset>
+        <legend>Гистограмма</legend>
+          <div class="hist">
+            <canvas id="histogram1"></canvas>
+          </div>
+          <div>
+            <input type="radio" tabindex="-1" id="eq1" name="eq" oninput=""/>
+            <label>Эквализировать 3 компоненты RGB</label>
+          </div>
+          <div>
+            <input type="radio" tabindex="-1" id="eq2" name="eq" oninput=""/>
+            <label>Эквализировать яркость в HSV</label>
+          </div>
+          <div class="settingspace">
+            <input type="checkbox" id="clahe">
+            <label>CLAHE</label>
+          </div>
+          <div class="settingspace">
+            <input type="number" value="3" class="numbox" id="clahemax">
+            <label>Верхний порог (*n)</label>
+          </div>
+          <div class="settingspace">
+            <input type="number" value="5" class="numbox" id="clahesize">
+            <label>Радиус окна</label>
+          </div>
+          <div>
+            <button onclick="runEqualise()">Эквализировать</button>
+          </div>
+          <div class="hist">
+            <canvas id="histogram2"></canvas>
+          </div>
+      </fieldset>
+    </div>
+
+<div id="lincont">
+  <div>
+      <fieldset>
+        <legend>Линейное контрастирование</legend>
+          <div class="settingspace">
+            <input type="number" value="150" class="numbox" id="lcvalue1">
+            <label>Минимальный порог</label>
+          </div>
+          <div class="settingspace">
+            <input type="number" value="250" class="numbox" id="lcvalue2">
+            <label>Максимальный порог</label>
+          </div>
+          <div>
+            <button onclick="lincont()">Применить</button>
+          </div>
+          <div class="hist">
+            <canvas id="histogram3"></canvas>
+          </div>
+      </fieldset></div>
+    </div></div>
+</div>
+</div>
+<script src="setup.js"></script>
+<script src="math.js"></script>
+<script src="imageDisplay.js"></script>
+<script src="filters.js"></script>
+<script src="histograms.js"></script>
+<script src="startup.js"></script>
+</body>
+</html>
+

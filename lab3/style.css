@@ -1,0 +1,46 @@
+div{
+  display: flex;
+}
+
+#main{
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#mainmain{
+  flex-direction: column;
+}
+
+#settingsBlock{
+  flex-direction: column;
+  align-items: center;
+}
+
+#settingsBlock{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+canvas{
+  border: 1px solid black;
+}
+
+.numbox{
+  width: 50px;
+}
+
+.settingspace{
+  margin-top: 10px;
+}
+
+.hist canvas{
+  margin: 10px;
+}
+
+button{
+  margin-top: 5px;
+}
+
+#histSelect{
+  justify-content: space-around;
+}
